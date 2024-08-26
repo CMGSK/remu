@@ -1,3 +1,4 @@
+use std::fmt::format;
 use std::thread::panicking;
 
 use crate::cpu::instructions::{Instruction, ArithmeticTarget};
@@ -21,14 +22,18 @@ impl MemoryBus {
 }
 
 impl CPU {
-
     fn step(&mut self){
         let mut instruction_byte = self.bus.read_byte(self.pc);
+        let prefix_instr == 0xCB;
+        if prefix_instr {
+            instruction_byte = self.bus.read_byte(self.pc + 1);
+        }
 
-        let next_pc = if let Some(instruction) = Instruction::from_byte(instruction_byte){
+        let next_pc = if let Some(instruction) = Instruction::from_byte(instruction_byte, prefix_instr){
             self.execute(instruction)
         } else {
-            panic!("Unknown instruction found for: 0x{:x}", instruction_byte);
+            let desciption = format("0x{}{:x}", if prefix_instr {"cb"} else {""}, instruction_byte);
+            panic!("Unknown instruction found for: 0x{:x}", desciption);
         };
 
         //TODO: Get the next pc from executions

@@ -11,13 +11,28 @@ pub enum ArithmeticTarget {
 pub enum Instruction {
     ADD(ArithmeticTarget),
     INC(ArithmeticTarget),
+    RLC(PrefixTarget),
 }
 
 impl Instruction {
-    pub fn from_byte(byte: u8) -> Option<Instruction> {
+    pub fn from_byte(byte: u8, prefix_instr: bool) -> Option<Instruction> {
+        if prefix_instr {
+            Instruction::from_byte_prefixed(byte)
+        } else {
+            Instruction::from_byte_unprefixed(byte)
+        }
+    }
+
+    fn from_byte_prefixed(byte: u8) -> Option<Instruction> {
+        match byte {
+            0x00 => Some(Instruction::RLC(PrefixTarget::B)),
+            _ => None
+        }
+    }
+
+    fn from_byte_unprefixed(byte: u8) -> Option<Instruction> {
         match byte {
             0x02 => Some(Instruction::INC(IncDecTarget::BC)),
-            0x13 => Some(Instruction::INC(IncDecTarget::DE)),
             _ => None
         }
     }
