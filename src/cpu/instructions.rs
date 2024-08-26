@@ -11,7 +11,16 @@ pub enum ArithmeticTarget {
 pub enum Instruction {
     ADD(ArithmeticTarget),
     INC(ArithmeticTarget),
+    JP(JumpTest),
     RLC(PrefixTarget),
+}
+
+pub enum JumpTest {
+    NotZero,
+    Zero,
+    NotCarry,
+    Carry,
+    Always,
 }
 
 impl Instruction {

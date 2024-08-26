@@ -1,7 +1,7 @@
 use std::fmt::format;
 use std::thread::panicking;
 
-use crate::cpu::instructions::{Instruction, ArithmeticTarget};
+use crate::cpu::instructions::{Instruction, ArithmeticTarget, JumpTest};
 use crate::cpu::registers::{Registers, Flags};
 
 
@@ -24,7 +24,7 @@ impl MemoryBus {
 impl CPU {
     fn step(&mut self){
         let mut instruction_byte = self.bus.read_byte(self.pc);
-        let prefix_instr == 0xCB;
+        let prefix_instr = instruction_byte == 0xCB;
         if prefix_instr {
             instruction_byte = self.bus.read_byte(self.pc + 1);
         }
@@ -32,8 +32,8 @@ impl CPU {
         let next_pc = if let Some(instruction) = Instruction::from_byte(instruction_byte, prefix_instr){
             self.execute(instruction)
         } else {
-            let desciption = format("0x{}{:x}", if prefix_instr {"cb"} else {""}, instruction_byte);
-            panic!("Unknown instruction found for: 0x{:x}", desciption);
+            let description = format!("0x{}{:x}", if prefix_instr {"cb"} else {""}, instruction_byte);
+            panic!("Unknown instruction found for: 0x{}", description);
         };
 
         //TODO: Get the next pc from executions
@@ -54,6 +54,16 @@ impl CPU {
                     _ => {/* TODO: Targets */ self.pc}
                 }
             },
+            Instruction::JP(test) => {
+                let jump_condition = match test {
+                    JumpTest::NotZero => !self.registers.f.zero,
+                    JumpTest::NotCarry => !self.registers.f.carry,
+                    JumpTest::Zero => self.registers.f.zero,
+                    JumpTest::Carry => self.registers.f.carry,
+                    JumpTest::Always => true
+                };
+                self.jump(jump_condition)
+            }
             /*
             Instruction::INC(target) => {
                 match target {
@@ -68,6 +78,19 @@ impl CPU {
             },
              */
             _ => {/* TODO: instructions*/ self.pc}
+        }
+    }
+
+    // The address we jump to is located in the two bytes following the instruction identifier as:
+    // [instr. id.] [least sig. byte] [most sig. byte]
+    fn jump(&self, is_jump: bool) -> u16 {
+        // Gameboy is little endian so pc +2 is the most significant bit and +1 the least
+        if is_jump {
+            let lsb = self.bus.read_byte(self.pc + 1) as u16;
+            let msb = self.bus.read_byte(self.pc + 2) as u16;
+            (msb << 8) | lsb
+        } else {
+            self.pc.wrapping_add(3)
         }
     }
 
