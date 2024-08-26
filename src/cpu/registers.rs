@@ -1,24 +1,16 @@
-struct Registers {
-    a: u8,
-    b: u8,
-    c: u8,
-    d: u8,
-    e: u8,
-    f: u8,
-    g: u8,
-    h: u8,
-    l: u8,
+pub struct Registers {
+    pub a: u8,
+    pub b: u8,
+    pub c: u8,
+    pub d: u8,
+    pub e: u8,
+    pub f: Flags,
+    pub g: u8,
+    pub h: u8,
+    pub l: u8,
 }
 
 impl Registers {
-    fn get_af(&self) -> u16 {
-        (self.a as u16) << 8 | self.f as u16
-    }
-    fn set_af(&mut self, val: u16) {
-        self.a = ((val & 0xFF00) >> 8) as u8;
-        self.f = (val &0xFF) as u8;
-    }
-
     fn get_bc(&self) -> u16 {
         (self.b as u16) << 8 | self.c as u16
     }
@@ -42,14 +34,16 @@ impl Registers {
         self.h = ((val & 0xFF00) >> 8) as u8;
         self.l = (val &0xFF) as u8;
     }
+
+    //af is not accessible because f stands for flag register
 }
 
 // From the f register
-struct Flags {
-    zero: bool,
-    subtract: bool,
-    half_carry: bool,
-    carry: bool,
+pub struct Flags {
+    pub zero: bool,
+    pub subtract: bool,
+    pub half_carry: bool,
+    pub carry: bool,
 }
 
 //This addresses the position of the byte in decimal system
