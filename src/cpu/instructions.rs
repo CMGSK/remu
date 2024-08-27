@@ -1,3 +1,21 @@
+pub enum Instruction {
+    ADD(ArithmeticTarget),
+    INC(ArithmeticTarget),
+    CALL(JumpTest),
+    RET(JumpTest),
+    JP(JumpTest),
+    RLC(PrefixTarget),
+    LD(LoadType),
+}
+
+pub enum PrefixTarget {
+    B,
+}
+
+pub enum IncDecTarget {
+    BC
+}
+
 pub enum ArithmeticTarget {
     A, 
     B, 
@@ -6,13 +24,34 @@ pub enum ArithmeticTarget {
     E, 
     H, 
     L,
+    BC(IncDecTarget),
 }
 
-pub enum Instruction {
-    ADD(ArithmeticTarget),
-    INC(ArithmeticTarget),
-    JP(JumpTest),
-    RLC(PrefixTarget),
+pub enum LoadByteTarget {
+    A, 
+    B,
+    C,
+    D,
+    E,
+    H,
+    L,
+    HLI,
+}
+
+pub enum LoadByteSource {
+    A, 
+    B,
+    C,
+    D,
+    E,
+    H,
+    L,
+    D8,
+    HLI,
+}
+
+pub enum LoadType {
+    Byte(LoadByteTarget, LoadByteSource)
 }
 
 pub enum JumpTest {
