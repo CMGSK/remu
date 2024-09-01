@@ -1,6 +1,8 @@
 pub enum Instruction {
+    HALT,
+    NOP,
     ADD(ArithmeticTarget),
-    INC(ArithmeticTarget),
+    INC(IncDecTarget),
     CALL(JumpTest),
     RET(JumpTest),
     JP(JumpTest),
@@ -24,7 +26,6 @@ pub enum ArithmeticTarget {
     E, 
     H, 
     L,
-    BC(IncDecTarget),
 }
 
 pub enum LoadByteTarget {

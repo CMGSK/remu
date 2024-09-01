@@ -6,7 +6,7 @@ use std::thread::panicking;
 
 use crate::cpu::instructions::{Instruction, ArithmeticTarget, JumpTest, LoadByteSource, LoadByteTarget, LoadType};
 use crate::cpu::registers::{Registers, Flags};
-use crate::cpu::memory::{MemoryBus};
+use crate::cpu::memory::MemoryBus;
 
 
 struct CPU {
@@ -14,6 +14,7 @@ struct CPU {
     pc: u16, //program counter
     sp: u16, //stack pointer
     bus: MemoryBus,
+    halted: bool
 }
 
 
@@ -46,7 +47,17 @@ impl CPU {
 
     // Parse the expected execution found and perform what is expected of it.
     fn execute(&mut self, instruction: Instruction) -> u16 {
+        if self.halted { 
+            return self.pc;
+        };
         match instruction {
+            Instruction::NOP => {
+                self.pc.wrapping_add(1)
+            }
+            Instruction::HALT => {
+                self.halted = !self.halted;
+                self.pc.wrapping_add(1)
+            },
             Instruction::ADD(target) => {
                 match target {
                     ArithmeticTarget::C => {
